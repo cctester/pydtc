@@ -1,6 +1,7 @@
 
 from setuptools import find_packages, setup
 
+## load project long description
 with open("README.md", "r") as f:
     long_description = f.read()
 
@@ -29,3 +30,10 @@ setup(
     'Programming Language :: Python :: 3',
   ],
 )
+
+import os
+from pathlib import Path
+## create folder for user to store the jdbc driver jars
+jdbc_driver = os.path.join(str(Path.home()), 'jdbc_driver')
+if not os.path.exists(jdbc_driver):
+    os.makedirs(jdbc_driver)

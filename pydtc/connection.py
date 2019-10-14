@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import logging
 import re
 import jaydebeapi
@@ -6,34 +7,27 @@ import jpype
 import pandas as pd
 
 from pydtc.utils import exec_time
-from pydtc.resources import resources_path
-from pydtc.resources.driver import driver_class
 
-if os.name == 'nt':
-    JVM_PATH = os.path.join(resources_path, 'jvm\\bin\\server\\jvm.dll')
-if os.name == 'posix':
-    JVM_PATH = os.path.join(resources_path, 'jvm/lib/server/lib/jvm.dylib')
-else:
-    JVM_PATH = os.path.join(resources_path, 'jvm/lib/amd64/server/libjvm.so')
-
+## dict of database software name to jdbc driver class name
+driver_class = {
+               'db2': 'com.ibm.db2.jcc.DB2Driver',
+               'teradata': 'com.teradata.jdbc.TeraDriver',
+               'mssql': 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+               'oracle': 'oracle.jdbc.driver.OracleDriver',
+               'mysql': 'com.mysql.cj.jdbc.Driver'
+               }
 
 class DBCon():
     '''
     Class wrapping the connection to database via jdbc with batch/fast
     load capability.
 
-    params:
-        host: str
-            url of the database server
-        user: str
-        password: str
-        database: str
-            abbrev. name of the database; e.g. db2, teradata, oracle etc.
-        driver: str
-            jdbc driver class name.
+    The jdbc driver jar file(s) to be supplied by the user which can be easily
+    accquired and to be placed into folder jdbc_driver under the user's home
+    directory.
     '''
 
-    def __init__(self, db, host, user, password, database=None, driver=None):
+    def __init__(self, db, host, user, password, database=None, driver=None, runtime_path=None):
         '''
         Instance of DBCon class.
 
@@ -43,13 +37,14 @@ class DBCon():
             user: str
             password: str
             database: str; if not set, use xxx; before any operation; default None
-            driver: str; the driver class name; default None             
+            driver: str; the driver class name; default None
+            runtime_path: str; location of the jvm lib, optional       
         '''
 
         self.logger = logging.getLogger(__name__)
 
-        if os.path.isfile(JVM_PATH):
-            jvm = JVM_PATH
+        if runtime_path:
+            jvm = runtime_path
         else:
             jvm = jpype.getDefaultJVMPath()
 
@@ -68,15 +63,22 @@ class DBCon():
             if driver:
                 self._driver = driver
             else:
-                raise Exception('specify the driver class name. like: ' +
+                raise Exception('unknown driver class name. specify like: ' +
                                 'driver = com.mysql.jdbc.Driver')
 
-        classes = os.listdir(os.path.join(resources_path, 'libs'))
+        lib_path = os.path.join(str(Path.home()), 'jdbc_driver')
+        if not os.path.exists(lib_path):
+            os.makedirs(lib_path)
+
+        classes = [c for c in os.listdir(lib_path) if c.endswith('.jar')]
+
+        if len(classes) == 0:
+            raise Exception('no jar file(s) provided.')
 
         if os.name == 'nt':
-            _path = ';'.join([os.path.join(resources_path, 'libs', c) for c in classes])
+            _path = ';'.join([os.path.join(lib_path, c) for c in classes])
         else:
-            _path = ':'.join([os.path.join(resources_path, 'libs', c) for c in classes])
+            _path = ':'.join([os.path.join(lib_path, c) for c in classes])
 
         args = '-Djava.class.path={}'.format(_path)
         if jpype.isJVMStarted():
