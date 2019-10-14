@@ -1,4 +1,4 @@
-from .pyw import (
+from .pydtc import (
     connect,
     load_temp,
     create_temp,

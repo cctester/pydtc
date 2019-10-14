@@ -1,6 +1,6 @@
 import warnings
-from pyw.connection import DBCon
-from pyw.parallelize import ParallelDataFrame
+from pydtc.connection import DBCon
+from pydtc.parallelize import ParallelDataFrame
 
 def connect(db, host, user, password, database=None, driver=None):
     con = DBCon(db, host, user, password, database=database, driver=driver)

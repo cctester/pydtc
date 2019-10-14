@@ -1,9 +1,9 @@
 
-from distutils.core import setup
+from setuptools import find_packages, setup
 
 setup(
-  name = 'pyw',
-  packages = ['pyw'],
+  name = 'pydtc',
+  packages = ['pydtc'],
   version = '0.1', 
   description = 'data tools collection',
   author = 'cctester',

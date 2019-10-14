@@ -5,9 +5,9 @@ import jaydebeapi
 import jpype
 import pandas as pd
 
-from pyw.utils import exec_time
-from pyw.resources import resources_path
-from pyw.resources.driver import driver_class
+from pydtc.utils import exec_time
+from pydtc.resources import resources_path
+from pydtc.resources.driver import driver_class
 
 if os.name == 'nt':
     JVM_PATH = os.path.join(resources_path, 'jvm\\bin\\server\\jvm.dll')
