@@ -15,3 +15,4 @@ def func(df, key, value):
     return pd.DataFrame(dd)
 
 new_df = pyw.p_groupby_apply(func, df, 'team1')
+print(new_df[:2].to_string())
