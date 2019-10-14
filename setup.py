@@ -4,11 +4,11 @@ from setuptools import find_packages, setup
 setup(
   name = 'pydtc',
   packages = ['pydtc'],
-  version = '0.1', 
+  version = '0.10', 
   description = 'data tools collection',
   author = 'cctester',
   author_email = 'cctester2001@gmail.com',
-  url = 'https://github.com/user/cctester',
+  url = 'https://github.com/cctester/pydtc',
   keywords = ['pandas', 'multiprocessing', 'database'],
   install_requires=[
           'pandas',
