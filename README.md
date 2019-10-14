@@ -5,6 +5,7 @@ creation and query as well.
 It also provide the multiprocessing capablity to pandas dataframe when dealing with cpu intensive operation on large volume data.
 
 sample usage:
+
     * connect to mysql
         import pydtc
 
