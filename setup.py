@@ -9,12 +9,11 @@ setup(
   author = 'cctester',
   author_email = 'cctester2001@gmail.com',
   url = 'https://github.com/user/cctester',
-  download_url = 'https://github.com/user/cctester/archive/v_01.tar.gz',
   keywords = ['pandas', 'multiprocessing', 'database'],
   install_requires=[
           'pandas',
           'JayDeBeApi',
-          'JPype1' == '0.6.3'
+          'JPype1 == 0.6.3'
       ],
   classifiers=[
     'Development Status :: 3 - Alpha',
