@@ -6,3 +6,9 @@ from .pydtc import (
     p_groupby_apply,
     p_apply
 )
+
+from .utils import (
+    exec_time,
+    retry,
+    async_retry
+)

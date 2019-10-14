@@ -7,7 +7,7 @@ with open("README.md", "r") as f:
 setup(
   name = 'pydtc',
   packages = ['pydtc'],
-  version = '0.0.1', 
+  version = '0.0.3', 
   description = 'data engineer tools collection',
   long_description=long_description,
   long_description_content_type="text/markdown",  
@@ -18,7 +18,8 @@ setup(
   install_requires=[
           'pandas',
           'JayDeBeApi',
-          'JPype1 == 0.6.3'
+          'JPype1 == 0.6.3',
+          'asyncio'
       ],
   classifiers=[
     'Development Status :: 3 - Alpha',
