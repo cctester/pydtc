@@ -10,7 +10,13 @@ sample usage:
         import pydtc
 
         conn = pydtc.connect('mysql', '127.0.0.1', 'user', 'pass', database='demo')
+        pydtc.read_sql(conn, 'select * from demo.sample')ß
         conn.close()
+    
+    ### or use with
+        with pydtc.connect('mysql', '127.0.0.1', 'user', 'pass', database='demo') as conn:
+            conn.read_sql('select * from demo.sample')
+            # pydtc.read_sql(conn, 'select * from demo.sample')
 
     ## pandas multiprocessing groupby then apply
         def func(df, key, value):

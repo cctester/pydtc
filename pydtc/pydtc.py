@@ -2,8 +2,8 @@ import warnings
 from pydtc.connection import DBCon
 from pydtc.parallelize import ParallelDataFrame
 
-def connect(db, host, user, password, database=None, driver=None):
-    con = DBCon(db, host, user, password, database=database, driver=driver)
+def connect(db, host, user, password, database=None, driver=None, runtime_path=None):
+    con = DBCon(db, host, user, password, database=database, driver=driver, runtime_path=None)
     con.connect()
     warnings.warn('use close() method at the end.')
 

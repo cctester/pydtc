@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 import logging
 import re
 import jaydebeapi
@@ -66,7 +65,7 @@ class DBCon():
                 raise Exception('unknown driver class name. specify like: ' +
                                 'driver = com.mysql.jdbc.Driver')
 
-        lib_path = os.path.join(str(Path.home()), 'jdbc_driver')
+        lib_path = os.path.join(os.path.expanduser('~'), 'jdbc_driver')
         if not os.path.exists(lib_path):
             os.makedirs(lib_path)
 
@@ -177,6 +176,8 @@ class DBCon():
             _has_rows = True
             r = dict(zip(columns, row))
             rows.append(r)
+
+        self._conn.commit()
 
         if _has_rows:
             return pd.DataFrame(rows)

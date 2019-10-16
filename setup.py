@@ -1,5 +1,10 @@
-
 from setuptools import find_packages, setup
+
+import os
+## create folder for user to store the jdbc driver jars
+jdbc_driver = os.path.join(os.path.expanduser('~'), 'jdbc_driver')
+if not os.path.exists(jdbc_driver):
+    os.makedirs(jdbc_driver)
 
 ## load project long description
 with open("README.md", "r") as f:
@@ -8,7 +13,7 @@ with open("README.md", "r") as f:
 setup(
   name = 'pydtc',
   packages = ['pydtc'],
-  version = '0.0.3', 
+  version = '0.0.4', 
   description = 'data engineer tools collection',
   long_description=long_description,
   long_description_content_type="text/markdown",  
@@ -30,10 +35,3 @@ setup(
     'Programming Language :: Python :: 3',
   ],
 )
-
-import os
-from pathlib import Path
-## create folder for user to store the jdbc driver jars
-jdbc_driver = os.path.join(str(Path.home()), 'jdbc_driver')
-if not os.path.exists(jdbc_driver):
-    os.makedirs(jdbc_driver)
