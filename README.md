@@ -1,8 +1,15 @@
-This package provide universal tools to connect all kinds of database
-via JDBC, using Fast/Batch load technology to speed the temporary table 
-creation and query as well.
+This pacakge provides various tools to perform task on data, in easy and efficient manner; more
+modules could be added into the tools collection with development.
 
-It also provide the multiprocessing capablity to pandas dataframe when dealing with cpu intensive operation on large volume data.
+1. universal way to connect most database softwares via JDBC, using Fast/Batch load
+technology to speed up the temporary table creation and query as well.
+
+2. add multiprocessing capablity to pandas dataframe when dealing with cpu intensive
+operation on large volume data.
+
+3. form based authentication module for requests package.
+
+4. restapi client using aiohttp package with retry function.
 
 sample usage:
 
@@ -10,7 +17,7 @@ sample usage:
         import pydtc
 
         conn = pydtc.connect('mysql', '127.0.0.1', 'user', 'pass', database='demo')
-        pydtc.read_sql(conn, 'select * from demo.sample')ß
+        pydtc.read_sql(conn, 'select * from demo.sample')
         conn.close()
     
     ### or use with
@@ -27,3 +34,8 @@ sample usage:
 
         new_df = pydtc.p_groupby_apply(func, df, 'group_key')
 
+    ## access web page in website with form based authenticaion
+        from pydtc import HttpFormAuth
+        import requests
+
+        r = requests.get('http://www.example.com/demo.json', auth=HttpFormAuth('user', 'password'))

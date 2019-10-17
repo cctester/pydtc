@@ -5,7 +5,9 @@ import jaydebeapi
 import jpype
 import pandas as pd
 
-from pydtc.utils import exec_time
+import asyncio
+import aiohttp
+from pydtc.utils import exec_time, async_retry
 
 ## dict of database software name to jdbc driver class name
 driver_class = {
@@ -16,7 +18,7 @@ driver_class = {
                'mysql': 'com.mysql.cj.jdbc.Driver'
                }
 
-class DBCon():
+class DBClient():
     '''
     Class wrapping the connection to database via jdbc with batch/fast
     load capability.
@@ -72,7 +74,7 @@ class DBCon():
         classes = [c for c in os.listdir(lib_path) if c.endswith('.jar')]
 
         if len(classes) == 0:
-            raise Exception('no jar file(s) provided.')
+            raise Exception('no jar file(s) provided in folder {}.'.format(lib_path))
 
         if os.name == 'nt':
             _path = ';'.join([os.path.join(lib_path, c) for c in classes])
@@ -99,7 +101,7 @@ class DBCon():
             self._conn.jconn.setAutoCommit(False)
             self._cur = self._conn.cursor()
 
-            self.logger.warning('Connected: %s', self._db)
+            self.logger.warning('Connected: %s', self._db.title())
 
         except jpype.JavaException as err:
             self.logger.error(err)
@@ -196,3 +198,66 @@ class DBCon():
 
     def __exit__(self, exc_type, exc, tb):
         self.close()
+
+
+class APIClient():
+    '''
+    Class wrapping connection to RESTful api utilizing aiohttp package for concurrent requests.
+    '''
+
+    def __init__(self, auth=None, loop=None, **kwargs):
+
+        self._session = aiohttp.ClientSession(auth=auth, loop=loop, **kwargs)
+
+
+    @async_retry(Exception, logger = logging.getLogger('retry'))
+    async def fetch(self, url):
+        async with self._session.get(url) as response:
+            status = response.status
+            if status == 200:
+                return await response.json()
+            else:
+                if response.text:
+                    raise Exception('Status Code: {}; Message: {}'.format(status, await response.json()))
+                else:
+                    raise Exception('GET Failed: {}'.format(status))
+
+    async def fetch_all(self, urls):
+        results = await asyncio.gather(
+            *[self.fetch(url) for url in urls],
+            return_exceptions=True
+        )
+
+        return results
+
+
+    @async_retry(Exception, logger=logging.getLogger('retry'))
+    async def update(self, url, data=None, method='put'):
+        _requests = {'post' : self._session.post,
+                     'put' : self._session.put,
+                     'patch' : self._session.patch,
+                     'delete' : self._session.delete
+        }
+
+        if method not in _requests:
+            raise Exception('unknown operation.')
+
+        async with _requests[method](url, json=data) as response:
+            status = response.status
+            if status == 200:
+                return await response.json()
+            else:
+                if response.text:
+                    raise Exception('Status Code: {}; Message: {}'.format(status, await response.json()))
+                else:
+                    raise Exception('UPDATE Failed: {}'.format(status))
+
+
+    async def close(self):
+        await self._session.close()
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.close()

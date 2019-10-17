@@ -3,7 +3,7 @@ import sys, os
 sys.path.insert(0,
     os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..')))
 #######################################################################
-import pydtc
+import requests
+from pydtc import HttpFormAuth
 
-conn = pydtc.connect('mysql', '127.0.0.1', 'cc', 'carl', database='databox')
-conn.close()
+r = requests.get('https://www.example.com/privatepage.html', auth=HttpFormAuth('user','password'))
