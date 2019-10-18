@@ -6,4 +6,6 @@ sys.path.insert(0,
 import requests
 from pydtc import HttpFormAuth
 
-r = requests.get('https://www.example.com/privatepage.html', auth=HttpFormAuth('user','password'))
+r = requests.get('https://www.example.com/private_page.html', auth=HttpFormAuth('user','pass'))
+
+print(r.status_code)

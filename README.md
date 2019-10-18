@@ -38,4 +38,4 @@ sample usage:
         from pydtc import HttpFormAuth
         import requests
 
-        r = requests.get('http://www.example.com/demo.json', auth=HttpFormAuth('user', 'password'))
+        r = requests.get('http://www.example.com/private_webpage.html', auth=HttpFormAuth('user', 'password'))

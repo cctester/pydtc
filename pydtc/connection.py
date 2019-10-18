@@ -240,7 +240,7 @@ class APIClient():
         }
 
         if method not in _requests:
-            raise Exception('unknown operation.')
+            raise Exception('unknown action.')
 
         async with _requests[method](url, json=data) as response:
             status = response.status

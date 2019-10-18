@@ -8,13 +8,13 @@ class HttpFormAuth(requests.auth.AuthBase):
     Form based Authentication Handler for Requests.
     '''
 
-    def __init__(self, user, password):
+    def __init__(self, username, password):
         '''
         param:
             user: str
             password: str
         '''
-        self.username = user
+        self.username = username
         self.password = password
         self.redirect_cnt = 0
 
@@ -36,21 +36,16 @@ class HttpFormAuth(requests.auth.AuthBase):
             Response
         '''
         if not 300 <= r.status_code < 400 and self.redirect_cnt < 1:
-            ## authenticate and redirect to the request page.
-
             try:
                 payload, url, method = self._prep_form_fields(r)
-
                 prep = r.request.copy()
-                prep.prepare(method=method, url=url, data=payload, cookies=r.cookies)
-
+                prep.prepare(method = method, url = url, data = payload, cookies = r.cookies)
                 _r = r.connection.send(prep, **kwargs)
             except:
                 pass
             else:
                 self.redirect_cnt += 1
                 return _r
-
         return r
 
 
@@ -67,12 +62,8 @@ class HttpFormAuth(requests.auth.AuthBase):
         form.fields[user] = self.username
         form.fields[password] = self.password
 
-        payload = {}
-        for k in form.fields:
-            payload[k] = form.fields[k]
-
-        print(payload)
-        return payload, form.base_url or form.action, form.method
+        payload = dict(form.form_values())
+        return payload, form.action or form.base_url, form.method
 
 
     def _pick_fields(self, form):
