@@ -87,11 +87,15 @@ class DBClient():
         else:
             jpype.startJVM(jvm, args)
 
-    def connect(self):
+    def connect(self, **params):
+        options = '&'.join(['{}={}'.format(k,v) for k,v in params.items()])
+
         if self._default:
-            connectionstring = 'jdbc:{}://{}/{}'.format(self._db, self._host, self._default)
+            connectionstring = 'jdbc:{db}://{host}/{defaultdatabase}?{options}'.format(
+                db=self._db, host=self._host, defaultdatabase=self._default, options=options)
         else:
-            connectionstring = 'jdbc:{}://{}'.format(self._db, self._host)
+            connectionstring = 'jdbc:{db}://{host}?{options}'.format(db=self._db, host=self._host,
+                options=options)
 
         try:
             self._conn = jaydebeapi.connect(self._driver, connectionstring,
@@ -173,16 +177,13 @@ class DBClient():
 
         self.logger.debug('Columns: %s', columns)
 
-        _has_rows = False
         for row in self._cur.fetchall():
-            _has_rows = True
-            r = dict(zip(columns, row))
-            rows.append(r)
+            rows.append(row)
 
         self._conn.commit()
 
-        if _has_rows:
-            return pd.DataFrame(rows)
+        if rows:
+            return pd.DataFrame(rows, columns=columns)
         else:
             return pd.DataFrame(columns=columns)
 
@@ -255,6 +256,7 @@ class APIClient():
 
     async def close(self):
         await self._session.close()
+    
 
     async def __aenter__(self):
         return self

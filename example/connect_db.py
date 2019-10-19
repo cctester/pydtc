@@ -5,5 +5,6 @@ sys.path.insert(0,
 #######################################################################
 import pydtc
 
-conn = pydtc.connect('mysql', '127.0.0.1', 'cc', 'carl', database='databox')
+conn = pydtc.connect('mysql', '127.0.0.1', 'user', 'pass', database='default', serverTimezone='UTC')
+df = conn.read_sql('select * from tbl')
 conn.close()
