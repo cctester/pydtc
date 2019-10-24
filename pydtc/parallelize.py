@@ -53,7 +53,7 @@ class ParallelDataFrame():
     def group_apply(self, func, groupkey, *args):
         '''
         param:
-            groupkey: str or list of str
+            groupkey: str; list of str
             func: function
 
         return: DataFrame or Series

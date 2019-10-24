@@ -39,3 +39,12 @@ sample usage:
         import requests
 
         r = requests.get('http://www.example.com/private_webpage.html', auth=HttpFormAuth('user', 'password'))
+
+    ## restapi get and update
+    # Fake Online REST API for Testing and Prototyping
+    # https://jsonplaceholder.typicode.com/
+        from pydtc import api_get, api_update
+
+        api_get('https://jsonplaceholder.typicode.com/todos/1')
+        # or
+        api_update('https://jsonplaceholder.typicode.com/todos/1', data={'title': 'foo'}, method='patch')

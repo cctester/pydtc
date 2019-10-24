@@ -87,15 +87,18 @@ class DBClient():
         else:
             jpype.startJVM(jvm, args)
 
-    def connect(self, **params):
+
+    def assemble_connection_str(self, **params):
         options = '&'.join(['{}={}'.format(k,v) for k,v in params.items()])
 
-        if self._default:
-            connectionstring = 'jdbc:{db}://{host}/{defaultdatabase}?{options}'.format(
-                db=self._db, host=self._host, defaultdatabase=self._default, options=options)
+        if self._default and options:
+            return '/' + self._default + '?' + options
         else:
-            connectionstring = 'jdbc:{db}://{host}?{options}'.format(db=self._db, host=self._host,
-                options=options)
+            return '/' + self._default if self._default else ''
+
+    def connect(self, **params):
+        connectionstring = 'jdbc:{db}://{host}{options}'.format(db=self._db, host=self._host,
+                                 options=self.assemble_connection_str(**params))
 
         try:
             self._conn = jaydebeapi.connect(self._driver, connectionstring,
@@ -133,7 +136,7 @@ class DBClient():
         '''
         param:
             sqlstr: str; sql statement
-            indata: DataFrame; data to be inserted into temp table
+            indata: DataFrame; data to be inserted into temp table, support int and string data type
             chunksize: int; default to 10000
         '''
 
@@ -170,14 +173,24 @@ class DBClient():
             sqlstr: str; sql statement
         '''
 
-        self._cur.execute(sqlstr)
+        stmt = self._conn.jconn.createStatement()
+        stmt.execute(sqlstr)
 
-        rows = []
-        columns = [column[0] for column in self._cur.description]
+        result = stmt.getResultSet()
+        meta = result.getMetaData()
+        column_count = meta.getColumnCount()
 
-        self.logger.debug('Columns: %s', columns)
+        rows, columns, converter_func = [], [], []
 
-        for row in self._cur.fetchall():
+        for col in range(1, column_count+1):
+            converter = jaydebeapi._converters.get(meta.getColumnType(col), jaydebeapi._unknownSqlTypeConverter)
+            converter_func.append(converter)
+            columns.append(meta.getColumnName(col))
+            
+        while result.next():
+            row = []
+            for i in range(column_count):
+                row.append(converter_func[i](result, i+1))
             rows.append(row)
 
         self._conn.commit()
@@ -207,6 +220,11 @@ class APIClient():
     '''
 
     def __init__(self, auth=None, loop=None, **kwargs):
+        '''
+        param:
+            auth: requests authentication; default: None
+            loop: EventLoop; default: None
+        '''
 
         self._session = aiohttp.ClientSession(auth=auth, loop=loop, **kwargs)
 
@@ -222,6 +240,7 @@ class APIClient():
                     raise Exception('Status Code: {}; Message: {}'.format(status, await response.json()))
                 else:
                     raise Exception('GET Failed: {}'.format(status))
+
 
     async def fetch_all(self, urls):
         results = await asyncio.gather(

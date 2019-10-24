@@ -10,7 +10,7 @@ from pydtc import api_get, api_update
 
 r = api_get('https://jsonplaceholder.typicode.com/todos/1')
 
-print(r)
+print(r.values())
 
 update = api_update('https://jsonplaceholder.typicode.com/todos/1', {'title': 'foo'}, method='patch')
 
