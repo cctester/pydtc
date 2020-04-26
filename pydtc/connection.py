@@ -13,7 +13,7 @@ from pydtc.utils import exec_time, async_retry
 driver_class = {
                'db2': 'com.ibm.db2.jcc.DB2Driver',
                'teradata': 'com.teradata.jdbc.TeraDriver',
-               'mssql': 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+               'sqlserver': 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
                'oracle': 'oracle.jdbc.driver.OracleDriver',
                'mysql': 'com.mysql.cj.jdbc.Driver'
                }
@@ -28,7 +28,7 @@ class DBClient():
     directory.
     '''
 
-    def __init__(self, db, host, user, password, database=None, driver=None, runtime_path=None):
+    def __init__(self, db, host, user, password, options='', driver=None, runtime_path=None):
         '''
         Instance of DBCon class.
 
@@ -37,7 +37,6 @@ class DBClient():
             host: str; url of db server.
             user: str
             password: str
-            database: str; if not set, use xxx; before any operation; default None
             driver: str; the driver class name; default None
             runtime_path: str; location of the jvm lib, optional       
         '''
@@ -53,7 +52,7 @@ class DBClient():
         self._host = host
         self._user = user
         self._pass = password
-        self._default = database
+        self._options = options
 
         self._conn = None
         self._cur = None
@@ -88,17 +87,13 @@ class DBClient():
             jpype.startJVM(jvm, args)
 
 
-    def assemble_connection_str(self, **params):
-        options = '&'.join(['{}={}'.format(k,v) for k,v in params.items()])
-
-        if self._default and options:
-            return '/' + self._default + '?' + options
+    def connect(self):
+        if self._db == 'oracle':
+            connectionstring = 'jdbc:{db}:thin@{host}{options}'.format(db=self._db, host=self._host,
+                                    options=self._options)
         else:
-            return '/' + self._default if self._default else ''
-
-    def connect(self, **params):
-        connectionstring = 'jdbc:{db}://{host}{options}'.format(db=self._db, host=self._host,
-                                 options=self.assemble_connection_str(**params))
+            connectionstring = 'jdbc:{db}://{host}{options}'.format(db=self._db, host=self._host,
+                                    options=self._options)
 
         try:
             self._conn = jaydebeapi.connect(self._driver, connectionstring,
