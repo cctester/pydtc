@@ -89,7 +89,7 @@ class DBClient():
 
     def connect(self):
         if self._db == 'oracle':
-            connectionstring = 'jdbc:{db}:thin@{host}{options}'.format(db=self._db, host=self._host,
+            connectionstring = 'jdbc:{db}:thin:@{host}{options}'.format(db=self._db, host=self._host,
                                     options=self._options)
         else:
             connectionstring = 'jdbc:{db}://{host}{options}'.format(db=self._db, host=self._host,
@@ -110,21 +110,28 @@ class DBClient():
             raise
 
     @exec_time()
-    def create_temp(self, sqlstr):
+    def update_sql(self, sqlstr, errmsg = 'Update Failed'):
         '''
         param:
-            sqlstr: str; sql statement, e.g. create temporary table temp (id int)
+            sqlstr: str; sql statement, e.g. create temporary table temp (id int); delete from tbl
         '''
 
         try:
             stmt = self._conn.jconn.createStatement()
-            stmt.executeUpdate(sqlstr)
+            if sqlstr.lower().startswith('delete'):
+                stmt.execute(sqlstr)
+            else:
+                stmt.executeUpdate(sqlstr)
             self._conn.commit()
 
             stmt.close()
         except Exception:
-            self.logger.exception('Temporary table creation failed.')
+            self.logger.exception(errmsg)
             raise
+
+    @exec_time()
+    def create_temp(self, sqlstr):
+        self.update_sql(sqlstr, errmsg='Temporary table creation failed.')
 
     @exec_time()
     def load_temp(self, sqlstr, indata, chunksize=10000):
