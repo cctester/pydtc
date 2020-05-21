@@ -15,7 +15,8 @@ driver_class = {
                'teradata': 'com.teradata.jdbc.TeraDriver',
                'sqlserver': 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
                'oracle': 'oracle.jdbc.driver.OracleDriver',
-               'mysql': 'com.mysql.cj.jdbc.Driver'
+               'mysql': 'com.mysql.cj.jdbc.Driver',
+               'hive2': 'org.apache.hive.jdbc.HiveDriver'
                }
 
 class DBClient():
