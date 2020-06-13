@@ -29,7 +29,7 @@ class DBClient():
     directory.
     '''
 
-    def __init__(self, db, host, user, password, options='', driver=None, lib_path=None, runtime_path=None):
+    def __init__(self, db, host, user, password, options='', classname=None, lib_path=None, runtime_path=None):
         '''
         Instance of DBCon class.
 
@@ -61,11 +61,11 @@ class DBClient():
         try:
             self._driver = driver_class[db]
         except KeyError:
-            if driver:
-                self._driver = driver
+            if classname:
+                self._driver = classname
             else:
                 raise Exception('unknown driver class name. specify like: ' +
-                                'driver = com.mysql.jdbc.Driver')
+                                'classname = "com.mysql.jdbc.Driver"')
 
         if lib_path:
             _lib_path = lib_path
