@@ -2,8 +2,8 @@ import asyncio
 from pydtc.connection import DBClient, APIClient
 from pydtc.parallelize import ParallelDataFrame
 
-def connect(db, host, user, password, options='', driver=None, runtime_path=None):
-    con = DBClient(db, host, user, password, options=options, driver=driver, runtime_path=runtime_path)
+def connect(db, host, user, password, options='', driver=None, lib_path=None, runtime_path=None):
+    con = DBClient(db, host, user, password, options=options, driver=driver, lib_path=lib_path, runtime_path=runtime_path)
     con.connect()
 
     return con

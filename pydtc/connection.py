@@ -29,7 +29,7 @@ class DBClient():
     directory.
     '''
 
-    def __init__(self, db, host, user, password, options='', driver=None, runtime_path=None):
+    def __init__(self, db, host, user, password, options='', driver=None, lib_path=None, runtime_path=None):
         '''
         Instance of DBCon class.
 
@@ -67,19 +67,22 @@ class DBClient():
                 raise Exception('unknown driver class name. specify like: ' +
                                 'driver = com.mysql.jdbc.Driver')
 
-        lib_path = os.path.join(os.path.expanduser('~'), 'jdbc_driver')
-        if not os.path.exists(lib_path):
-            os.makedirs(lib_path)
+        if lib_path:
+            _lib_path = lib_path
+        else:
+            _lib_path = os.path.join(os.path.expanduser('~'), 'jdbc_driver')
+            if not os.path.exists(_lib_path):
+                os.makedirs(_lib_path)
 
-        classes = [c for c in os.listdir(lib_path) if c.endswith('.jar')]
+        classes = [c for c in os.listdir(_lib_path) if c.endswith('.jar')]
 
         if len(classes) == 0:
-            raise Exception('no jar file(s) provided in folder {}.'.format(lib_path))
+            raise Exception('no jar file(s) provided in folder {}.'.format(_lib_path))
 
         if os.name == 'nt':
-            _path = ';'.join([os.path.join(lib_path, c) for c in classes])
+            _path = ';'.join([os.path.join(_lib_path, c) for c in classes])
         else:
-            _path = ':'.join([os.path.join(lib_path, c) for c in classes])
+            _path = ':'.join([os.path.join(_lib_path, c) for c in classes])
 
         args = '-Djava.class.path={}'.format(_path)
         if jpype.isJVMStarted():
