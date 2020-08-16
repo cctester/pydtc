@@ -138,12 +138,14 @@ class DBClient():
         self.update_sql(sqlstr, errmsg='Temporary table creation failed.')
 
     @exec_time()
-    def load_temp(self, sqlstr, indata, chunksize=10000):
+    def load_batch(self, sqlstr, indata, chunksize=10000, errmsg='Batch load failed.'):
         '''
         param:
             sqlstr: str; sql statement
-            indata: DataFrame; data to be inserted into temp table, support int and string data type
+            indata: DataFrame; data to be inserted into the table, support int and string data type
             chunksize: int; default to 10000
+        sample:
+            sqlstr: insert into Demo (col1, col2) values (?,?)
         '''
 
         if isinstance(indata, pd.DataFrame):
@@ -167,10 +169,16 @@ class DBClient():
                 self._conn.commit()
                 pstmt.close()
             except Exception:
-                self.logger.exception('Temporary table insertion failed:')
+                self.logger.exception(errmsg)
                 raise
         else:
-            raise Exception('Input takes dataframe only')
+            raise Exception('Input takes dataframe only.')
+
+
+    @exec_time()
+    def load_temp(self, sqlstr, indata, chunksize=10000):
+        self.load_batch(sqlstr, indata, chunksize=10000, errmsg='Temporary table insertion failed.')
+
 
     @exec_time()
     def read_sql(self, sqlstr):

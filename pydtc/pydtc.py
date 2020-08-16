@@ -8,20 +8,21 @@ def connect(db, host, user, password, options='', driver=None, lib_path=None, ru
 
     return con
 
-
 def read_sql(con, sql):
 
     return con.read_sql(sql)
-
 
 def create_temp(con, sql):
 
     con.create_temp(sql)
 
-
 def load_temp(con, sql, df, chunksize=10000):
 
     con.load_temp(sql, df, chunksize=chunksize)
+
+def load_batch(con, sql, df, chunksize=10000):
+
+    con.load_batch(sql, df, chunksize=chunksize)
 
 
 # speed up pandas cpu operation with multiprocessing especially for large set.
