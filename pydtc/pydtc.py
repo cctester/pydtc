@@ -1,4 +1,6 @@
+import os
 import asyncio
+import jpype
 from pydtc.connection import DBClient, APIClient
 from pydtc.parallelize import ParallelDataFrame
 
@@ -11,6 +13,35 @@ def connect(db, host, user, password, options='', driver=None, lib_path=None, ru
 def read_sql(con, sql):
 
     return con.read_sql(sql)
+
+def clob_to_str(clob):
+    try:
+        sb = jpype.java.lang.StringBuilder()
+        chars = jpype.JArray(jpype.JChar)(clob.length())
+        cs = clob.getCharacterStream()
+        cs.read(chars)
+        sb.append(chars)
+        cs.close()
+        return sb.toString()
+    except:
+        return
+
+def blob_to_file(blob, file_name, save_to):
+    '''
+    helper func to save the blob field into file.
+    Param:
+      blob: the blob field
+      file_name: the file name
+      save_to: the folder to save the file
+    '''
+    try:
+        out = jpype.java.io.FileOutputStream(os.path.join(save_to, file_name))
+        buff = blob.getBytes(1, blob.length())
+        out.write(buff)
+        out.close()
+        return True
+    except:
+        return False
 
 def create_temp(con, sql):
 
