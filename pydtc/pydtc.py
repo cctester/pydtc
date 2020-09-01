@@ -4,8 +4,22 @@ import jpype
 from pydtc.connection import DBClient, APIClient
 from pydtc.parallelize import ParallelDataFrame
 
-def connect(db, host, user, password, options='', driver=None, lib_path=None, runtime_path=None):
-    con = DBClient(db, host, user, password, options=options, driver=driver, lib_path=lib_path, runtime_path=runtime_path)
+def connect(db, host, user, password, options='', classname=None, lib_path=None, runtime_path=None):
+    '''
+    Interface to connect to the database
+
+    Param:
+      db: the common name of the database, e.g db2, teradata
+      host: the host of the database instance
+      user: user name
+      passowrd: user password
+      options: the remainder of the connection string, default database, database specific param could
+               be added here
+      classname: the classname, e.g. "com.mysql.jdbc.Driver"
+      lib_path: the jdbc driver location
+      runtime_path: the java runtime path if custom desired
+    '''
+    con = DBClient(db, host, user, password, options=options, classname=classname, lib_path=lib_path, runtime_path=runtime_path)
     con.connect()
 
     return con
