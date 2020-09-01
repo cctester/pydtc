@@ -37,8 +37,8 @@ def clob_to_str(clob):
         sb.append(chars)
         cs.close()
         return sb.toString()
-    except:
-        return
+    except Exception as err:
+        return str(err)[:200]
 
 def blob_to_file(blob, file_name, save_to):
     '''
@@ -53,9 +53,9 @@ def blob_to_file(blob, file_name, save_to):
         buff = blob.getBytes(1, blob.length())
         out.write(buff)
         out.close()
-        return True
-    except:
-        return False
+        return 'Success'
+    except Exception as err:
+        return str(err)[:200]
 
 def create_temp(con, sql):
 
