@@ -57,6 +57,7 @@ class DBClient():
 
         self._conn = None
         self._cur = None
+        self._col_prop = {}
 
         try:
             self._driver = driver_class[db]
@@ -181,11 +182,19 @@ class DBClient():
 
 
     @exec_time()
-    def read_sql(self, sqlstr):
+    def read_sql(self, sqlstr, custom_converters=None):
         '''
         param:
             sqlstr: str; sql statement
+            custom_converters: default to use builtin.
         '''
+        if custom_converters == None:
+            converters = jaydebeapi._converters
+        elif isinstance(custom_converters, dict):
+            converters = {**jaydebeapi._converters, **custom_converters}
+        else:
+            raise Exception('Dictionary of column type and custom function to be provide.')
+
 
         stmt = self._conn.jconn.createStatement()
         stmt.execute(sqlstr)
@@ -197,9 +206,12 @@ class DBClient():
         rows, columns, converter_func = [], [], []
 
         for col in range(1, column_count+1):
-            converter = jaydebeapi._converters.get(meta.getColumnType(col), jaydebeapi._unknownSqlTypeConverter)
+            _coltyp = meta.getColumnType(col)
+            _colnm = meta.getColumnName(col)
+            self._col_prop[_colnm] = _coltyp
+            converter = converters.get(_coltyp, jaydebeapi._unknownSqlTypeConverter)
             converter_func.append(converter)
-            columns.append(meta.getColumnName(col))
+            columns.append(_colnm)
             
         while result.next():
             row = []
@@ -213,6 +225,7 @@ class DBClient():
             return pd.DataFrame(rows, columns=columns)
         else:
             return pd.DataFrame(columns=columns)
+
 
     def close(self):
         try:
