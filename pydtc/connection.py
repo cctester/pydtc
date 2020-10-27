@@ -29,7 +29,7 @@ class DBClient():
     directory.
     '''
 
-    def __init__(self, db, host, user, password, options={}, classname=None, lib_path=None, runtime_path=None):
+    def __init__(self, db, host, user, password, java_props={}, classname=None, lib_path=None, runtime_path=None):
         '''
         Instance of DBCon class.
 
@@ -53,7 +53,6 @@ class DBClient():
         self._host = host
         self._user = user
         self._pass = password
-        self._options = options
 
         self._conn = None
         self._cur = None
@@ -86,12 +85,14 @@ class DBClient():
             _path = ':'.join([os.path.join(_lib_path, c) for c in classes])
 
         args = '-Djava.class.path={}'.format(_path)
-        for k,v in self._options.items():
-            args += ' D{}={}'.format(k,v)
         if jpype.isJVMStarted():
             pass
         else:
             jpype.startJVM(jvm, args)
+            if java_props:
+                system = jpype.JClass("java.lang.System")
+                for k, v in java_props.items():
+                    system.setProperty(str(k), str(v))
 
 
     def connect(self):
@@ -180,20 +181,6 @@ class DBClient():
     def load_temp(self, sqlstr, indata, chunksize=10000):
         self.load_batch(sqlstr, indata, chunksize=10000, errmsg='Temporary table insertion failed.')
 
-    @exec_time()
-    def get_coltype(self, sqlstr):
-        col_typ = {}
-
-        stmt = self._conn.jconn.createStatement()
-        stmt.execute(sqlstr)
-        stmt.execute(sqlstr)
-        result = stmt.getResultSet()
-        meta = result.getMetaData()
-        column_count = meta.getColumnCount()
-        for col in range(1, column_count+1):
-            col_typ[meta.getColumnName(col)] = meta.getColumnType(col)
-
-        return col_typ
 
     @exec_time()
     def read_sql(self, sqlstr, custom_converters=None):

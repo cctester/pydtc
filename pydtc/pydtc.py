@@ -4,7 +4,7 @@ import jpype
 from pydtc.connection import DBClient, APIClient
 from pydtc.parallelize import ParallelDataFrame
 
-def connect(db, host, user, password, options={}, classname=None, lib_path=None, runtime_path=None):
+def connect(db, host, user, password, props={}, classname=None, lib_path=None, runtime_path=None):
     '''
     Interface to connect to the database
 
@@ -19,7 +19,7 @@ def connect(db, host, user, password, options={}, classname=None, lib_path=None,
       lib_path: the jdbc driver location
       runtime_path: the java runtime path if custom desired
     '''
-    con = DBClient(db, host, user, password, options=options, classname=classname, lib_path=lib_path, runtime_path=runtime_path)
+    con = DBClient(db, host, user, password, java_props=props, classname=classname, lib_path=lib_path, runtime_path=runtime_path)
     con.connect()
 
     return con
