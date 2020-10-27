@@ -38,7 +38,9 @@ class DBClient():
             host: str; url of db server.
             user: str
             password: str
-            driver: str; the driver class name; default None
+            java_props: dict; the java property that to be set system-wide, optional
+            classname: str, the forclass name for the jdbc driver
+            lib_path: str, default to jdbc_driver under user's home directory
             runtime_path: str; location of the jvm lib, optional       
         '''
 

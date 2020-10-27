@@ -13,8 +13,7 @@ def connect(db, host, user, password, props={}, classname=None, lib_path=None, r
       host: the host of the database instance
       user: user name
       passowrd: user password
-      options: the remainder of the connection string, default database, database specific param could
-               be added here
+      props: the java property that to be set system-wide
       classname: the classname, e.g. "com.mysql.jdbc.Driver"
       lib_path: the jdbc driver location
       runtime_path: the java runtime path if custom desired
