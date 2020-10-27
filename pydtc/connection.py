@@ -29,7 +29,7 @@ class DBClient():
     directory.
     '''
 
-    def __init__(self, db, host, user, password, options='', classname=None, lib_path=None, runtime_path=None):
+    def __init__(self, db, host, user, password, options={}, classname=None, lib_path=None, runtime_path=None):
         '''
         Instance of DBCon class.
 
@@ -86,6 +86,8 @@ class DBClient():
             _path = ':'.join([os.path.join(_lib_path, c) for c in classes])
 
         args = '-Djava.class.path={}'.format(_path)
+        for k,v in self._options.items():
+            args += ' D{}={}'.format(k,v)
         if jpype.isJVMStarted():
             pass
         else:
@@ -94,11 +96,9 @@ class DBClient():
 
     def connect(self):
         if self._db == 'oracle':
-            connectionstring = 'jdbc:{db}:thin:@{host}{options}'.format(db=self._db, host=self._host,
-                                    options=self._options)
+            connectionstring = 'jdbc:{db}:thin:@{host}'.format(db=self._db, host=self._host)
         else:
-            connectionstring = 'jdbc:{db}://{host}{options}'.format(db=self._db, host=self._host,
-                                    options=self._options)
+            connectionstring = 'jdbc:{db}://{host}'.format(db=self._db, host=self._host)
 
         try:
             self._conn = jaydebeapi.connect(self._driver, connectionstring,
@@ -180,6 +180,20 @@ class DBClient():
     def load_temp(self, sqlstr, indata, chunksize=10000):
         self.load_batch(sqlstr, indata, chunksize=10000, errmsg='Temporary table insertion failed.')
 
+    @exec_time()
+    def get_coltype(self, sqlstr):
+        col_typ = {}
+
+        stmt = self._conn.jconn.createStatement()
+        stmt.execute(sqlstr)
+        stmt.execute(sqlstr)
+        result = stmt.getResultSet()
+        meta = result.getMetaData()
+        column_count = meta.getColumnCount()
+        for col in range(1, column_count+1):
+            col_typ[meta.getColumnName(col)] = meta.getColumnType(col)
+
+        return col_typ
 
     @exec_time()
     def read_sql(self, sqlstr, custom_converters=None):

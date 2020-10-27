@@ -4,7 +4,7 @@ import jpype
 from pydtc.connection import DBClient, APIClient
 from pydtc.parallelize import ParallelDataFrame
 
-def connect(db, host, user, password, options='', classname=None, lib_path=None, runtime_path=None):
+def connect(db, host, user, password, options={}, classname=None, lib_path=None, runtime_path=None):
     '''
     Interface to connect to the database
 
