@@ -200,34 +200,40 @@ class DBClient():
 
 
         stmt = self._conn.jconn.createStatement()
-        stmt.execute(sqlstr)
+        try:
+            stmt.execute(sqlstr)
 
-        result = stmt.getResultSet()
-        meta = result.getMetaData()
-        column_count = meta.getColumnCount()
+            result = stmt.getResultSet()
+            meta = result.getMetaData()
+            column_count = meta.getColumnCount()
 
-        rows, columns, converter_func = [], [], []
+            rows, columns, converter_func = [], [], []
 
-        for col in range(1, column_count+1):
-            _coltyp = meta.getColumnType(col)
-            _colnm = meta.getColumnName(col)
-            self._col_prop[_colnm] = _coltyp
-            converter = converters.get(_coltyp, jaydebeapi._unknownSqlTypeConverter)
-            converter_func.append(converter)
-            columns.append(_colnm)
-            
-        while result.next():
-            row = []
-            for i in range(column_count):
-                row.append(converter_func[i](result, i+1))
-            rows.append(row)
+            for col in range(1, column_count+1):
+                _coltyp = meta.getColumnType(col)
+                _colnm = meta.getColumnName(col)
+                self._col_prop[_colnm] = _coltyp
+                converter = converters.get(_coltyp, jaydebeapi._unknownSqlTypeConverter)
+                converter_func.append(converter)
+                columns.append(_colnm)
+                
+            while result.next():
+                row = []
+                for i in range(column_count):
+                    row.append(converter_func[i](result, i+1))
+                rows.append(row)
 
-        self._conn.commit()
+            self._conn.commit()
 
-        if rows:
-            return pd.DataFrame(rows, columns=columns)
-        else:
-            return pd.DataFrame(columns=columns)
+            if rows:
+                return pd.DataFrame(rows, columns=columns)
+            else:
+                return pd.DataFrame(columns=columns, dtype=object)
+        except Exception as e:
+            self.logger.error(str(e))
+            raise
+        finally:
+            stmt.close()
 
 
     def close(self):
