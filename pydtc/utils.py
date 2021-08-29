@@ -1,7 +1,8 @@
 import time
+import signal
 import asyncio
 from functools import wraps
-
+from multiprocessing import Process, Queue
 
 def exec_time(logger=None):
     '''
@@ -37,9 +38,9 @@ def retry(*exceptions, retries=4, delay=4, logger=None):
             while mtries > 0:
                 try:
                     return f(*args, **kwargs)
-                except exceptions as e:
+                except exceptions as e:                    
+                    msg = '%s; %d tries left, Retrying in %d seconds...' % (str(e), mtries, mdelay)
                     mtries -= 1
-                    msg = '%s, Retrying in %d seconds...' % (str(e), mdelay)
 
                     if logger:
                         logger.warning(msg)
@@ -49,6 +50,7 @@ def retry(*exceptions, retries=4, delay=4, logger=None):
                     time.sleep(mdelay)
 
             return f(*args, **kwargs)
+        inner.__name__ = f.__name__
         return inner
     return deco_retry
 
@@ -67,9 +69,8 @@ def async_retry(*exceptions, retries=4, delay=4, logger=None):
                 try:
                     return await f(*args, **kwargs)
                 except exceptions as e:
+                    msg = '{}; {} tries left, Retrying in {} seconds...'.format(str(e), mtries, mdelay)
                     mtries -= 1
-                    msg = '{}, Retrying in {} seconds...'.format(
-                        str(e), mdelay)
 
                     if logger:
                         logger.warning(msg)
@@ -82,3 +83,58 @@ def async_retry(*exceptions, retries=4, delay=4, logger=None):
 
         return inner
     return deco_retry
+
+class TimeoutException(Exception):
+    def __init__(self, seconds):
+        self.message = 'timeout after {} seconds'.format(seconds)
+        super().__init__(self.message)
+
+def timeout(s, handler=None):
+    '''
+    Timeout decorator.
+    param: 
+        s:  time in seconds the function run before terminated.
+        handler:  optional, for unix like system only, define custom function handling the timeout event.
+    '''
+
+    def deco_timeout(f):
+        if hasattr(signal, "SIGALRM"):
+            '''
+            for unix like system.
+            '''
+            @wraps(f)
+            def inner(*args, **kwargs):
+                _handler = lambda _s, _f: (_ for _ in ()).throw(TimeoutException(s)) if handler == None else handler
+
+                signal.signal(signal.SIGALRM, _handler)
+                signal.alarm(s)
+                try:
+                    result = f(*args, **kwargs)
+                finally:
+                    signal.alarm(0)
+                return results
+            return inner
+
+        else:
+            '''
+            for others systems without SIGALRM.
+            '''
+
+            @wraps(f)
+            def inner(*args, **kwargs):
+                def queue_wrapper(args, kwargs):
+                    q.put(f(*args, **kwargs))
+    
+                q = Queue()
+                p = Process(target=queue_wrapper, args=(args, kwargs))
+                p.start()
+                p.join(s)
+                if p.is_alive():
+                    p.terminate()
+                    p.join()
+                    raise TimeoutException(s)
+
+                return q.get()
+            return inner
+
+    return deco_timeout

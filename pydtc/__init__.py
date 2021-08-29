@@ -17,7 +17,9 @@ from .pydtc import (
 from .utils import (
     exec_time,
     retry,
-    async_retry
+    async_retry,
+    TimeoutException,
+    timeout
 )
 
 from .formauth import HttpFormAuth
