@@ -1,4 +1,4 @@
-__version__ = '0.4'
+__version__ = '0.4.1'
 
 from .pydtc import (
     connect,
@@ -18,7 +18,7 @@ from .utils import (
     exec_time,
     retry,
     async_retry,
-    TimeoutException,
+    DTCTimeoutException,
     timeout
 )
 

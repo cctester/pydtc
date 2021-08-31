@@ -3,24 +3,26 @@ import sys, os
 sys.path.insert(0,
     os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..')))
 #######################################################################
-import time
-from pydtc import timeout, retry, TimeoutException
+import time, os
+from pydtc import timeout, retry, DTCTimeoutException
 
-@retry(TimeoutException, retries=2, delay=2)
-@timeout(4)
+@retry(DTCTimeoutException, retries=2, delay=2)
+@timeout(4.1)
 def test(err_within_timerange=False):
     for i in range(10):
         print(f'{i+1} seconds.')
+        # print(os.getpid())
         time.sleep(1)
         if err_within_timerange:
-            raise TimeoutException(999)
+            raise DTCTimeoutException(999)
 
-try:
-    test()
-except TimeoutException as e:
-    print(e)
+if __name__ == "__main__":
+    try:
+        test()
+    except DTCTimeoutException as e:
+        print(e)
 
-try:
-    test(True)
-except TimeoutException as e:
-    print(e)
+    try:
+        test(True)
+    except DTCTimeoutException as e:
+        print(e)

@@ -2,7 +2,8 @@ import time
 import signal
 import asyncio
 from functools import wraps
-from multiprocessing import Process, Queue
+from multiprocessing import TimeoutError
+from multiprocessing.pool import ThreadPool
 
 def exec_time(logger=None):
     '''
@@ -84,7 +85,7 @@ def async_retry(*exceptions, retries=4, delay=4, logger=None):
         return inner
     return deco_retry
 
-class TimeoutException(Exception):
+class DTCTimeoutException(Exception):
     def __init__(self, seconds):
         self.message = 'timeout after {} seconds'.format(seconds)
         super().__init__(self.message)
@@ -92,6 +93,7 @@ class TimeoutException(Exception):
 def timeout(s, handler=None):
     '''
     Timeout decorator.
+    ref: https://anonbadger.wordpress.com/2018/12/15/python-signal-handlers-and-exceptions/
     param: 
         s:  time in seconds the function run before terminated.
         handler:  optional, for unix like system only, define custom function handling the timeout event.
@@ -104,37 +106,35 @@ def timeout(s, handler=None):
             '''
             @wraps(f)
             def inner(*args, **kwargs):
-                _handler = lambda _s, _f: (_ for _ in ()).throw(TimeoutException(s)) if handler == None else handler
+                _handler = lambda _s, _f: (_ for _ in ()).throw(DTCTimeoutException(s)) if handler == None else handler
 
                 signal.signal(signal.SIGALRM, _handler)
                 signal.alarm(s)
                 try:
-                    result = f(*args, **kwargs)
+                    return f(*args, **kwargs)
+                except:
+                    raise
                 finally:
                     signal.alarm(0)
-                return results
+                
             return inner
 
         else:
             '''
-            for others systems without SIGALRM.
+            for others systems without SIGALRM, use multiprocessing instead.
             '''
 
-            @wraps(f)
-            def inner(*args, **kwargs):
-                def queue_wrapper(args, kwargs):
-                    q.put(f(*args, **kwargs))
-    
-                q = Queue()
-                p = Process(target=queue_wrapper, args=(args, kwargs))
-                p.start()
-                p.join(s)
-                if p.is_alive():
-                    p.terminate()
-                    p.join()
-                    raise TimeoutException(s)
+            def wrapper(*args, **kwargs):
+                pool = ThreadPool(processes=1)
+                results = pool.apply_async(f, args, kwargs)
+                pool.close()
+                try:
+                    return results.get(s)
+                except TimeoutError:
+                    raise DTCTimeoutException(s)
+                finally:
+                    pool.terminate() ## thread seems still running. todo...
 
-                return q.get()
-            return inner
+            return wrapper
 
     return deco_timeout
