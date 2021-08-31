@@ -7,14 +7,14 @@ import time, os
 from pydtc import timeout, retry, DTCTimeoutException
 
 @retry(DTCTimeoutException, retries=2, delay=2)
-@timeout(4.1)
+@timeout(4)
 def test(err_within_timerange=False):
     for i in range(10):
         print(f'{i+1} seconds.')
         # print(os.getpid())
         time.sleep(1)
         if err_within_timerange:
-            raise DTCTimeoutException(999)
+            raise OSError('exception from function internally.')
 
 if __name__ == "__main__":
     try:
