@@ -104,7 +104,7 @@ class DBClient():
             connectionstring = 'jdbc:{db}://{host}'.format(db=self._db, host=self._host)
 
         try:
-            if self._db == 'hive2¹:
+            if self._db == 'hive2':
                 import org.apache.hadoop.security.UserGroupInformation
                 import org.apache.hadoop.conf.Configuration
                 conf = org.apache.hadoop.conf.Configuration()
