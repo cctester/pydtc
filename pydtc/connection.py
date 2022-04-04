@@ -34,7 +34,7 @@ class DBClient():
         Instance of DBCon class.
 
         param:
-            db: str; db2|teradata|mssql|mysql etc.
+            db: str; db2|teradata|mssql|mysql|hive2 with kerberos auth etc.
             host: str; url of db server.
             user: str
             password: str
@@ -104,11 +104,21 @@ class DBClient():
             connectionstring = 'jdbc:{db}://{host}'.format(db=self._db, host=self._host)
 
         try:
-            self._conn = jaydebeapi.connect(self._driver, connectionstring,
-                                            [self._user, self._pass],
-                                            None,)
+            if self._db == 'hive2¹:
+                import org.apache.hadoop.security. UserGroupInformation
+                import org.apache.hadoop.conf.Configuration
+                conf = org.apache.hadoop.conf.Configuration()
+                conf.set("hadoop.security.authentication", "Kerberos")
+                org.apache.hadoop.security.UserGroupInformation.setConfiguration (conf)
+                org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(self._user, self._pass)
+                self._conn = jaydebeapi.connect (self. driver, connectionstring, ['', ''], None,)
+                self._conn.jconn.setAutoCommit(True)
+            else:
+                self._conn = jaydebeapi.connect(self._driver, connectionstring,
+                                                [self._user, self._pass],
+                                                None,)
 
-            self._conn.jconn.setAutoCommit(False)
+                self._conn.jconn.setAutoCommit(False)
             self._cur = self._conn.cursor()
 
             self.logger.warning('Connected: %s', self._db.title())
@@ -170,7 +180,11 @@ class DBClient():
 
                     pstmt.executeBatch()
 
-                self._conn.commit()
+                if self._db == 'hive2':
+                    pass
+                else:
+                    self._conn.commit()
+
                 pstmt.close()
             except Exception:
                 self.logger.exception(errmsg)
@@ -223,7 +237,10 @@ class DBClient():
                     row.append(converter_func[i](result, i+1))
                 rows.append(row)
 
-            self._conn.commit()
+            if self._db == 'hive2':
+                pass
+            else:
+                self._conn.commit()
 
             if rows:
                 return pd.DataFrame(rows, columns=columns)
