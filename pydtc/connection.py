@@ -112,7 +112,7 @@ class DBClient():
                 conf.set("hadoop.security.authentication", "Kerberos")
                 org.apache.hadoop.security.UserGroupInformation.setConfiguration (conf)
                 org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(self._user, self._pass)
-                self._conn = jaydebeapi.connect (self. driver, connectionstring, ['', ''], None,)
+                self._conn = jaydebeapi.connect (self._driver, connectionstring, ['', ''], None,)
                 self._conn.jconn.setAutoCommit(True)
             else:
                 self._conn = jaydebeapi.connect(self._driver, connectionstring,
