@@ -3,6 +3,7 @@ import logging
 import re
 import jaydebeapi
 import jpype
+import jpype.imports
 import pandas as pd
 
 import asyncio
