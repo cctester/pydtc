@@ -105,7 +105,7 @@ class DBClient():
 
         try:
             if self._db == 'hive2¹:
-                import org.apache.hadoop.security. UserGroupInformation
+                import org.apache.hadoop.security.UserGroupInformation
                 import org.apache.hadoop.conf.Configuration
                 conf = org.apache.hadoop.conf.Configuration()
                 conf.set("hadoop.security.authentication", "Kerberos")
