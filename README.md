@@ -1,7 +1,7 @@
 This pacakge provides various tools to perform task on data, in easy and efficient manner; more
 modules could be added into the tools collection with development.
 
-1. universal way to connect most database softwares via JDBC, using Fast/Batch load
+1. universal way to connect most database softwares via JDBC (include kerberos auth for Hive), using Fast/Batch load
 technology to speed up the temporary table creation and query; as well as functions to convert clob 
 into string or save the blob into specified file. 
 
