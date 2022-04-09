@@ -11,8 +11,8 @@ def connect(db, host, user, password, props={}, classname=None, lib_path=None, r
     Param:
       db: the common name of the database, e.g db2, teradata
       host: the host of the database instance
-      user: user name
-      passowrd: user password
+      user: user name, principal if connect to hive thru kerberos auth
+      passowrd: user password, keytab location if connect to hive thru kerberos auth
       props: the java property that to be set system-wide
       classname: the classname, e.g. "com.mysql.jdbc.Driver"
       lib_path: the jdbc driver location
