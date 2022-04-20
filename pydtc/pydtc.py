@@ -23,7 +23,7 @@ def connect(db, host, user, password, props={}, classname=None, lib_path=None, r
 
     return con
 
-def read_sql(con, sql):
+def read_sql(sql, con):
 
     return con.read_sql(sql)
 
@@ -56,15 +56,15 @@ def blob_to_file(blob, file_name, save_to):
     except Exception as err:
         return str(err)[:200]
 
-def create_temp(con, sql):
+def create_temp(sql, con):
 
     con.create_temp(sql)
 
-def load_temp(con, sql, df, chunksize=10000):
+def load_temp(sql, con, df, chunksize=10000):
 
     con.load_temp(sql, df, chunksize=chunksize)
 
-def load_batch(con, sql, df, chunksize=10000):
+def load_batch(sql, con, df, chunksize=10000):
 
     con.load_batch(sql, df, chunksize=chunksize)
 
