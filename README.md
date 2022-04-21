@@ -25,6 +25,7 @@ sample usage:
         with pydtc.connect('mysql', '127.0.0.1', 'user', 'pass') as conn:
             conn.read_sql('select * from demo.sample')
             # pydtc.read_sql('select * from demo.sample', conn)
+            # or pd.read_sql('select * from demo.sample', conn)
 
     ## pandas multiprocessing groupby then apply
         def func(df, key, value):
