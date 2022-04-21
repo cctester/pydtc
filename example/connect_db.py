@@ -5,7 +5,7 @@ sys.path.insert(0,
 #######################################################################
 import pydtc
 
-conn = pydtc.connect('mysql', 'localhost', 'user', 'pass', options="/mysql?serverTimezone='UTC'")
+conn = pydtc.connect('mysql', 'localhost', 'user', 'pass')
 df = conn.read_sql('select * from column_stats')
 print(df[:2].to_string())
 conn.close()

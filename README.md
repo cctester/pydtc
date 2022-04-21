@@ -18,13 +18,13 @@ sample usage:
         import pydtc
 
         conn = pydtc.connect('mysql', '127.0.0.1', 'user', 'pass')
-        pydtc.read_sql(conn, 'select * from demo.sample')
+        pydtc.read_sql('select * from demo.sample', conn)
         conn.close()
     
     ### or use with clause for auto close
         with pydtc.connect('mysql', '127.0.0.1', 'user', 'pass') as conn:
             conn.read_sql('select * from demo.sample')
-            # pydtc.read_sql(conn, 'select * from demo.sample')
+            # pydtc.read_sql('select * from demo.sample', conn)
 
     ## pandas multiprocessing groupby then apply
         def func(df, key, value):

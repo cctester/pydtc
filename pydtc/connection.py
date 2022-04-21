@@ -128,6 +128,9 @@ class DBClient():
             self.logger.error(err)
             raise
 
+    def cursor(self):
+        return self._cur
+
     @exec_time()
     def update_sql(self, sqlstr, errmsg = 'Update Failed'):
         '''
