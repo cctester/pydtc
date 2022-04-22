@@ -23,6 +23,25 @@ def connect(db, host, user, password, props={}, classname=None, lib_path=None, r
 
     return con
 
+def connect_dbapi(db, host, user, password, props={}, classname=None, lib_path=None, runtime_path=None):
+    '''
+    Return jaydebeapi Connection object that complies to DBAPI 2.0
+
+    Param:
+      db: the common name of the database, e.g db2, teradata
+      host: the host of the database instance
+      user: user name, principal if connect to hive thru kerberos auth
+      passowrd: user password, keytab location if connect to hive thru kerberos auth
+      props: the java property that to be set system-wide
+      classname: the classname, e.g. "com.mysql.jdbc.Driver"
+      lib_path: the jdbc driver location
+      runtime_path: the java runtime path if custom desired
+    '''
+    con = DBClient(db, host, user, password, java_props=props, classname=classname, lib_path=lib_path, runtime_path=runtime_path)
+    con.connect()
+
+    return con._conn
+
 def read_sql(sql, con):
 
     return con.read_sql(sql)

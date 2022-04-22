@@ -25,7 +25,10 @@ sample usage:
         with pydtc.connect('mysql', '127.0.0.1', 'user', 'pass') as conn:
             conn.read_sql('select * from demo.sample')
             # pydtc.read_sql('select * from demo.sample', conn)
-            # or pd.read_sql('select * from demo.sample', conn)
+
+        ## DBAPI 2.0    
+        with pydtc.connect_dbapi('mysql', '127.0.0.1', 'user', 'pass') as conn:
+            pd.read_sql('select * from demo.sample', conn)
 
     ## pandas multiprocessing groupby then apply
         def func(df, key, value):

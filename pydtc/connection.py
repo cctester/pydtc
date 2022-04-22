@@ -58,7 +58,6 @@ class DBClient():
         self._pass = password
 
         self._conn = None
-        self._cur = None
         self._col_prop = {}
 
         try:
@@ -120,7 +119,6 @@ class DBClient():
                                                 None,)
 
                 self._conn.jconn.setAutoCommit(False)
-            self._cur = self._conn.cursor()
 
             self.logger.warning('Connected: %s', self._db.title())
 
@@ -128,8 +126,6 @@ class DBClient():
             self.logger.error(err)
             raise
 
-    def cursor(self):
-        return self._cur
 
     @exec_time()
     def update_sql(self, sqlstr, errmsg = 'Update Failed'):
@@ -259,7 +255,6 @@ class DBClient():
 
     def close(self):
         try:
-            self._cur.close()
             self._conn.close()
         except Exception as e:
             self.logger.warning(e)

@@ -1,7 +1,8 @@
-__version__ = '0.6.0'
+__version__ = '0.6.1'
 
 from .pydtc import (
     connect,
+    connect_dbapi,
     load_temp,
     create_temp,
     read_sql,
