@@ -29,7 +29,9 @@ setup(
           'JayDeBeApi',
           'JPype1 == 0.6.3',
           'asyncio',
-          'aiohttp'
+          'aiohttp',
+          'lxml',
+          'requests'
       ],
   classifiers = [
     'Development Status :: 3 - Alpha',
