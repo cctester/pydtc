@@ -30,7 +30,7 @@ class DBClient():
     directory.
     '''
 
-    def __init__(self, db, host, user, password, java_props={}, classname=None, lib_path=None, runtime_path=None):
+    def __init__(self, db, host, user, password, java_props={}, charset=None, classname=None, lib_path=None, runtime_path=None):
         '''
         Instance of DBCon class.
 
@@ -56,6 +56,7 @@ class DBClient():
         self._host = host
         self._user = user
         self._pass = password
+        self._charset = charset
 
         self._conn = None
         self._col_prop = {}
@@ -136,11 +137,15 @@ class DBClient():
 
         try:
             stmt = self._conn.jconn.createStatement()
-            if sqlstr.lower().startswith('delete'):
+            if sqlstr.lower().startswith('delete') or self._db == 'hive2':
                 stmt.execute(sqlstr)
             else:
                 stmt.executeUpdate(sqlstr)
-            self._conn.commit()
+
+            if self._db == 'hive2':
+                pass
+            else:
+                self._conn.commit()
 
             stmt.close()
         except Exception:
@@ -172,7 +177,10 @@ class DBClient():
                     for j in zip(*_data.T.values.tolist()):
                         for k in range(len(j)):
                             if _schema[k].find('int') == 0:
-                                pstmt.setInt(k+1, j[k])
+                                if j[k] >= 2147483647 or j[k] <= -2147483648:
+                                    pstmt.setLong(k+1, j[k])
+                                else:
+                                    pstmt.setInt(k+1, j[k])
                             elif _schema[k].find('obj') == 0:
                                 pstmt.setString(k+1, j[k])
 
@@ -205,10 +213,22 @@ class DBClient():
             sqlstr: str; sql statement
             custom_converters: default to use builtin.
         '''
+        def _str_conv_(rs, col):
+            _s = rs.getString(col)
+            if isinstance(_s, str):
+                try:
+                    _ss = _s.encode(self._charset).decode()
+                    return _ss
+                except:
+                    return _s
+            else:
+                return None
+            
+        string_converter = {1: _str_conv_, 12: _str_conv_}
         if custom_converters == None:
-            converters = jaydebeapi._converters
+            converters = {**jaydebeapi._converters, **string_converter}
         elif isinstance(custom_converters, dict):
-            converters = {**jaydebeapi._converters, **custom_converters}
+            converters = custom_converters
         else:
             raise Exception('Dictionary of column type and custom function to be provide.')
 

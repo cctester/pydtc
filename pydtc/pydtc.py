@@ -4,7 +4,7 @@ import jpype
 from pydtc.connection import DBClient, APIClient
 from pydtc.parallelize import ParallelDataFrame
 
-def connect(db, host, user, password, props={}, classname=None, lib_path=None, runtime_path=None):
+def connect(db, host, user, password, props={}, charset='latin-1s', classname=None, lib_path=None, runtime_path=None):
     '''
     Interface to connect to the database
 
@@ -18,12 +18,12 @@ def connect(db, host, user, password, props={}, classname=None, lib_path=None, r
       lib_path: the jdbc driver location
       runtime_path: the java runtime path if custom desired
     '''
-    con = DBClient(db, host, user, password, java_props=props, classname=classname, lib_path=lib_path, runtime_path=runtime_path)
+    con = DBClient(db, host, user, password, java_props=props, charset=charset, classname=classname, lib_path=lib_path, runtime_path=runtime_path)
     con.connect()
 
     return con
 
-def connect_dbapi(db, host, user, password, props={}, classname=None, lib_path=None, runtime_path=None):
+def connect_dbapi(db, host, user, password, props={}, charset='latin-1', classname=None, lib_path=None, runtime_path=None):
     '''
     Return jaydebeapi Connection object that complies to DBAPI 2.0
 
@@ -37,7 +37,7 @@ def connect_dbapi(db, host, user, password, props={}, classname=None, lib_path=N
       lib_path: the jdbc driver location
       runtime_path: the java runtime path if custom desired
     '''
-    con = DBClient(db, host, user, password, java_props=props, classname=classname, lib_path=lib_path, runtime_path=runtime_path)
+    con = DBClient(db, host, user, password, java_props=props, charset=charset, classname=classname, lib_path=lib_path, runtime_path=runtime_path)
     con.connect()
 
     return con._conn
