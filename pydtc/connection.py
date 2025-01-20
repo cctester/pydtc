@@ -30,7 +30,7 @@ class DBClient():
     directory.
     '''
 
-    def __init__(self, db, host, user, password, java_props={}, charset=None, classname=None, lib_path=None, runtime_path=None):
+    def __init__(self, db, host, user, password, jvm_props=None, java_props=None, charset=None, classname=None, lib_path=None, runtime_path=None):
         '''
         Instance of DBCon class.
 
@@ -87,12 +87,16 @@ class DBClient():
         else:
             _path = ':'.join([os.path.join(_lib_path, c) for c in classes])
 
-        args = '-Djava.class.path={}'.format(_path)
+        if isinstance(jvm_props, list):
+            args = ['-Djava.class.path={}'.format(_path), *jvm_props]
+        else:
+            args = ['-Djava.class.path={}'.format(_path)]
+
         if jpype.isJVMStarted():
             pass
         else:
             jpype.startJVM(jvm, args)
-            if java_props:
+            if isinstance(java_props, dict):
                 system = jpype.JClass("java.lang.System")
                 for k, v in java_props.items():
                     system.setProperty(str(k), str(v))
