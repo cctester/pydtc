@@ -95,7 +95,7 @@ class DBClient():
         if jpype.isJVMStarted():
             pass
         else:
-            jpype.startJVM(jvm, *args)
+            jpype.startJVM(jvm, *args, convertStrings=True)
             if isinstance(java_props, dict):
                 system = jpype.JClass("java.lang.System")
                 for k, v in java_props.items():

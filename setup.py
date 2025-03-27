@@ -26,8 +26,8 @@ setup(
   python_requires = ">=3.5",
   install_requires = [
           'pandas',
-          'JayDeBeApi',
-          'JPype1 == 0.6.3',
+          'JayDeBeApi == 1.2.3',
+          'JPype1 == 1.5.2',
           'asyncio',
           'aiohttp',
           'lxml',
