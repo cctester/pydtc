@@ -48,13 +48,7 @@ def read_sql(sql, con):
 
 def clob_to_str(clob):
     try:
-        sb = jpype.java.lang.StringBuilder()
-        chars = jpype.JArray(jpype.JChar)(clob.length())
-        cs = clob.getCharacterStream()
-        cs.read(chars)
-        sb.append(chars)
-        cs.close()
-        return sb.toString()
+        return clob.getSubString(1, int(clob.length()))
     except Exception as err:
         return str(err)[:200]
 
@@ -68,7 +62,7 @@ def blob_to_file(blob, file_name, save_to):
     '''
     try:
         out = jpype.java.io.FileOutputStream(os.path.join(save_to, file_name))
-        buff = blob.getBytes(1, blob.length())
+        buff = blob.getBytes(1, int(blob.length()))
         out.write(buff)
         out.close()
         return 'Success'
